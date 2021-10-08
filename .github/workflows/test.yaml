@@ -1,0 +1,37 @@
+name: Test on PR
+
+on: 
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+  name: Test infra on PR
+  runs-on: ubuntu-latest
+
+  steps:
+  - uses: actions/checkout@v2
+
+  - name: Set up Python 3.8
+    uses: actions/setup-python@v2
+    with:
+      python-version: 3.8
+
+  - name: HashiCorp = Setup Terraform
+    uses: hashicorp/setup-terraform@v1.2.1
+
+  - name: Configure AWS credencials
+    uses: aws-actions/configure-aws-credentials@v1
+    with: 
+      aws-acess-key-id: ${{ secrets.AWS_ACESS_KEY_ID }}
+      aws-secret-acess-key: ${{ secrets.AWS_SECRET_ACESS_KEY_ID }}
+      aws-region: us-east-2
+
+  - name: IAC Apply
+    env:
+      COMMAND_IAC: Terraform
+    run: | 
+      cd infraestrucute
+      $COMMAND_IAC init
+      $COMMAND_IAC validate
+      $COMMAND_IAC init plan
